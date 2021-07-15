@@ -3,9 +3,9 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import Timeline from './Timeline';
 import Chart from './Chart';
 import RegisterTask from './RegisterTask';
+import TimelineStack from './TimelineStack';
 
 const Tab = createBottomTabNavigator();
 const HomeTracking = () => {
@@ -38,7 +38,7 @@ const HomeTracking = () => {
                     <Icon name="bar-chart" color={color} size={26} />
                 ),
             }}/>
-            <Tab.Screen name="Timeline" component={Timeline} options={{
+            <Tab.Screen name="TimelineStack" component={TimelineStack} options={{
                 tabBarLabel: 'Lịch trình',
                 tabBarColor: '#1f65ff',
                 tabBarIcon: ({ color }) => (

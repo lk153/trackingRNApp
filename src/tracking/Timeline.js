@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import Timeline from 'react-native-timeline-flatlist';
 import LinearGradient from 'react-native-linear-gradient';
 import { useIsFocused } from '@react-navigation/native'
+import * as Progress from 'react-native-progress';
 import moment from 'moment';
 
 import Loader from '../components/Loader';
@@ -11,7 +12,11 @@ const TASK_API_ENDPOINT = "http://192.168.1.5:8080/v1/tasks"
 function convertData(input) {
     if (input.length > 0) {
         output = input.map(item => {
-            return {time: moment("2021-07-02 " + item.startAt).utcOffset(60*7).format('HH:mm'), title: item.name}
+            return {
+                time: moment("2021-07-02 " + item.startAt).utcOffset(60*7).format('HH:mm'), 
+                title: item.name, 
+                description: {taskID: item.id}
+            }
         })
 
         return output
@@ -20,7 +25,7 @@ function convertData(input) {
     return []
 }
 
-const TrackTimeline = () => {
+const TrackTimeline = ({ navigation: { navigate }}) => {
     const isFocused = useIsFocused()
     const [data, setData] = useState({
         data: [],
@@ -37,9 +42,49 @@ const TrackTimeline = () => {
                     setData({data: output, loading: false})
                 }
             })
-            .catch((error) => console.error(error))
-            .finally(() => {});
+            .catch((error) => {
+                console.error(error)
+            })
+            .finally(() => {
+                setData(prevData => {
+                    return {
+                        ...prevData, 
+                        loading: false
+                    }
+                })
+            });
     }, [isFocused]);
+
+    const renderDetail = (rowData, sectionID, rowID) => {
+        let title = <Text style={styles.title}>{rowData.title}</Text>
+        // var desc = null
+        // if  (rowData.description && rowData.imageUrl) {
+        //     desc = (
+        //         <View style={{borderColor: 'red', borderWidth: 3}}>
+        //             <Image source={{uri: rowData.imageUrl}} style={styles.image}/>
+        //             <Text style={[styles.textDescription]}>{rowData.description}</Text>
+        //         </View>
+        //     )
+        // }
+        
+        return (
+            <TouchableOpacity onPress={() => {navigate('TaskDetail', {taskID: rowData.description.taskID})}}>
+                <View style={styles.eventDetail}>
+                    {title}
+                    {/* {desc} */}
+                </View>
+            </TouchableOpacity>
+        )
+    }
+
+    const renderCircle = (rowData, sectionID, rowID) => {
+        var progressBar = <Progress.Pie color={'#000000'} progress={0.4} size={20} animated={true} />
+        return (
+            <View style={styles.circle}>
+                {progressBar}
+            </View>
+        )
+    }
 
     return (
         <LinearGradient
@@ -65,7 +110,8 @@ const TrackTimeline = () => {
                 options={{
                     style:{paddingTop:5, width: '100%'},
                 }}
-                titleStyle={styles.eventDetail}
+                renderDetail={renderDetail}
+                renderCircle={renderCircle}
             />
         </LinearGradient>
     );
@@ -79,6 +125,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     eventDetail: {
+        flex: 1,
         padding: 5,
         backgroundColor: "#fabd03",
         color: "#000000",
@@ -89,6 +136,25 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 15,
         fontWeight: '300'
+    },
+    title: {
+        textAlign: 'center'
+    },
+    dot: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#000000',
+    },
+    circle: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        zIndex: 1,
+        position: "absolute",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fabd03"
     },
     time: {
         paddingTop: 5,

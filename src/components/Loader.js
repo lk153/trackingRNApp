@@ -48,6 +48,6 @@ const styles = StyleSheet.create({
     },
     activityIndicator: {
         alignItems: 'center',
-        height: 80,
+        height: 100,
     },
 });

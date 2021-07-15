@@ -11,11 +11,7 @@ import {
     DefaultTheme as NavigationDefaultTheme,
     DarkTheme as NavigationDarkTheme
 } from '@react-navigation/native';
-import AsyncStorage from '@react-native-community/async-storage';
-
-import NeomorphBlurControl from './neomorph/NeomorphBlurControl';
-import NeomorphControl from './neomorph/NeomorphControl';
-import ShadowsControl from './neomorph/ShadowsControl';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { AuthContext } from './components/context';
 import RootStackScreen from './screens/RootStackScreen';
@@ -58,29 +54,30 @@ const HomePage = () => {
     }
     const theme = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme;
     const [loginState, dispatch] = React.useReducer(loginReducer, initialLoginState);
+    const userTokenKey = "@userToken"
     const authContext = React.useMemo(() => ({
-        signIn: async(foundUser) => {
+        signIn: async (foundUser) => {
             const userToken = String(foundUser[0].userToken);
             const userName = foundUser[0].username;
-            try {
-                await AsyncStorage.setItem('userToken', userToken);
-            } catch(e) {
-                console.log(e);
-            }
-            dispatch({ type: 'LOGIN', id: userName, token: userToken });
+            // try {
+            //     await AsyncStorage.setItem(userTokenKey, userToken);
+            // } catch(e) {
+            //     console.log(e);
+            // }
+            dispatch({type: 'LOGIN', id: userName, token: userToken});
         },
-        signOut: async() => {
-            try {
-                await AsyncStorage.removeItem('userToken');
-            } catch(e) {
-                console.log(e);
-            }
-            dispatch({ type: 'LOGOUT' });
+        signOut: async () => {
+            // try {
+            //     await AsyncStorage.removeItem(userTokenKey);
+            // } catch(e) {
+            //     console.log(e);
+            // }
+            dispatch({type: 'LOGOUT'});
         },
         signUp: () => {
         },
         toggleTheme: () => {
-            setIsDarkTheme( isDarkTheme => !isDarkTheme );
+            setIsDarkTheme(isDarkTheme => !isDarkTheme);
         }
     }), []);
 
@@ -97,7 +94,7 @@ const HomePage = () => {
         }, 1000);
     }, []);
 
-    if( loginState.isLoading ) {
+    if (loginState.isLoading) {
         return(
             <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
                 <ActivityIndicator size="large"/>
@@ -109,16 +106,17 @@ const HomePage = () => {
         <PaperProvider theme={theme}>
             <AuthContext.Provider value={authContext}>
                 <NavigationContainer>
-                { loginState.userToken !== null ? (
-                    <Drawer.Navigator drawerContent={props => <DrawerContent {...props} />} initialRouteName="HomeTracking">
-                        <Drawer.Screen name="HomeTracking" component={HomeTracking} />
-                        <Drawer.Screen name="SupportScreen" component={SupportScreen} />
-                        <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
-                        <Drawer.Screen name="BookmarkScreen" component={BookmarkScreen} />
-                        <Drawer.Screen name="ProfileScreen" component={ProfileScreen} />
-                    </Drawer.Navigator>
-                    ) :
-                    <RootStackScreen/>
+                {loginState.userToken !== null ? ( //Already logged in
+                        <Drawer.Navigator drawerContent={props => <DrawerContent {...props} />} initialRouteName="HomeTracking">
+                            <Drawer.Screen name="HomeTracking" component={HomeTracking} />
+                            <Drawer.Screen name="SupportScreen" component={SupportScreen} />
+                            <Drawer.Screen name="SettingsScreen" component={SettingsScreen} />
+                            <Drawer.Screen name="BookmarkScreen" component={BookmarkScreen} />
+                            <Drawer.Screen name="ProfileScreen" component={ProfileScreen} />
+                        </Drawer.Navigator>
+                    )
+                    :
+                        <RootStackScreen/> //Anonymous user
                 }
                 </NavigationContainer>
             </AuthContext.Provider>

@@ -30,7 +30,6 @@ const SignInScreen = ({navigation}) => {
     });
 
     const { colors } = useTheme();
-
     const { signIn } = React.useContext(AuthContext);
 
     const textInputChange = (val) => {

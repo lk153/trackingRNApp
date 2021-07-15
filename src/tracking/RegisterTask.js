@@ -84,7 +84,7 @@ const Task = (props) => {
             style={[styles.container]}
         >
             <Loader loading={status.loading}/>
-            <ScrollView style={{height: '100%'}}>
+            <ScrollView>
                 <Animatable.View animation="fadeInUpBig">
                     <View style={styles.section}>
                         <Text style={styles.label}>Tên công việc</Text>
@@ -246,7 +246,7 @@ export default Task;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        padding: 40,
         height: '100%'
     },
     section: {
